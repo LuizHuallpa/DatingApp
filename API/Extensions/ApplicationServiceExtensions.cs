@@ -16,6 +16,8 @@ namespace API.Extensions
         });
             services.AddCors();
             services.AddScoped<ITokenService, TokenService>();// It is typical to when creating a service also create it's interface
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             return services;
         }
