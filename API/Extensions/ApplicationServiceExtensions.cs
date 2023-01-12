@@ -1,5 +1,6 @@
 using System.Reflection.Metadata.Ecma335;
 using API.Data;
+using API.Helpers;
 using API.Interfaces;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,9 @@ namespace API.Extensions
             services.AddScoped<ITokenService, TokenService>();// It is typical to when creating a service also create it's interface
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+            services.Configure<CloudnarySettings>(config.GetSection("CloudinarySettings"));
+            services.AddScoped<IPhotoService, PhotoService>();
+            
             return services;
         }
 
