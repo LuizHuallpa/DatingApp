@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
   AbstractControl,
+  FormBuilder,
   FormControl,
   FormGroup,
   ValidatorFn,
@@ -15,32 +16,40 @@ import { AccountService } from '../_services/account.service';
   styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent implements OnInit {
-  // @Input() usersFromHomeComponent: any;
+
   @Output() cancelRegister = new EventEmitter();
   model: any = {};
   registerForm: FormGroup = new FormGroup({});
+  maxDate: Date = new Date();
 
   constructor(
     private accountService: AccountService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+    this.maxDate.setFullYear(this.maxDate.getFullYear() - 18);
   }
 
   initializeForm() {
-    this.registerForm = new FormGroup({
-      username: new FormControl('', Validators.required),
-      password: new FormControl('', [
+    this.registerForm = this.fb.group({
+      gender: ['male'],
+      username: ['', Validators.required],
+      knownAs: ['', Validators.required],
+      dateOfBirth: ['', Validators.required],
+      city: ['', Validators.required],
+      country: ['', Validators.required],
+      password:[ '', [
         Validators.required,
         Validators.minLength(4),
         Validators.maxLength(8),
-      ]),
-      confirmPassword: new FormControl('', [
+      ]],
+      confirmPassword: ['', [
         Validators.required,
         this.matchValues('password'),
-      ]),
+      ]],
     });
     this.registerForm.controls['password'].valueChanges.subscribe( {
       next: () =>
