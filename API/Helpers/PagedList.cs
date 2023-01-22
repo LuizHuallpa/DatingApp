@@ -7,14 +7,14 @@ namespace API.Helpers
     {
         public PagedList(IEnumerable<T> items, int count, int pageNumber, int pageSize)
         {
-            CurrentPaged = pageNumber;
+            CurrentPage = pageNumber;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize);
             PageSize = pageSize;
             TotalCount = count;
             AddRange(items);
         }
 
-        public int CurrentPaged { get; set; }
+        public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
         public int PageSize { get; set; }
         public int TotalCount { get; set; }
