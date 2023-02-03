@@ -81,15 +81,15 @@ namespace API.Data
 
         public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUserName, string RecipientUsername)
         {
-            var messages = await _context.Messages
-             .Include(u => u.Sender).ThenInclude(p => p.Photos)
-             .Include(u => u.Recipient).ThenInclude(p => p.Photos)
-             .Where(m => m.Recipient.UserName == currentUserName && m.RecipientDeleted == false && m.Sender.UserName == RecipientUsername ||
-                   m.RecipientUsername == RecipientUsername && m.SenderDeleted == false && m.SenderUsername == currentUserName)
+            var query =  _context.Messages
+             .Where(
+                m => m.Recipient.UserName == currentUserName && m.RecipientDeleted == false && m.Sender.UserName == RecipientUsername ||
+                m.RecipientUsername == RecipientUsername && m.SenderDeleted == false && m.SenderUsername == currentUserName)
              .OrderBy(m => m.MessageSent)
-             .ToListAsync();
+             .AsQueryable();
 
-            var unreadMessages = messages.Where(m => m.DateRead == null && m.Recipient.UserName == currentUserName).ToList();
+
+            var unreadMessages = query.Where(m => m.DateRead == null && m.Recipient.UserName == currentUserName).ToList();
 
             if (unreadMessages.Any())
             {
@@ -97,11 +97,9 @@ namespace API.Data
                 {
                     message.DateRead = DateTime.Now;
                 }
-
-                await _context.SaveChangesAsync();
             }
 
-            return _mapper.Map<IEnumerable<MessageDto>>(messages);
+            return await query.ProjectTo<MessageDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         public void RemoveConnection(Connection connection)
@@ -109,9 +107,5 @@ namespace API.Data
             _context.Connections.Remove(connection);
         }
 
-        public async Task<bool> SaveAllAsync()
-        {
-            return await _context.SaveChangesAsync() > 0;
-        }
     }
 }
