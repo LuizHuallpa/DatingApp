@@ -36,7 +36,7 @@ namespace API.SignalR
 
             var messages = await _uow.MessageRepository.GetMessageThread(Context.User.GetUsername(), otherUser);
 
-            if(_uow.HasChanges()) await _uow.Complete();
+            if (_uow.HasChanges()) await _uow.Complete();
 
             await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
         }
@@ -79,16 +79,19 @@ namespace API.SignalR
             else
             {
                 var connections = await PresenceTracker.GetConnectionsForUser(recipient.UserName);
-                if (connections.Any())
+                if (connections != null)
                 {
-                    await _presenceHub.Clients.Clients(connections).SendAsync("NewMessageReceived", new { username = sender.UserName, knownAs = sender.KnownAs });
+                    await _presenceHub.Clients.Clients(connections).SendAsync("NewMessageReceived",
+                        new { username = sender.UserName, knownAs = sender.KnownAs });
                 }
             }
 
             _uow.MessageRepository.AddMessage(message);
 
             if (await _uow.Complete())
+            {
                 await Clients.Group(groupName).SendAsync("NewMessage", _mapper.Map<MessageDto>(message));
+            }
 
         }
 
